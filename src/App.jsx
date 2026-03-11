@@ -185,7 +185,7 @@ export default function App() {
           </h1>
           <div className="header-actions">
             <button className="dark-toggle" onClick={() => setShowCategoryManager(true)} title="Kategorije">
-              ⚙
+              ⚙️
             </button>
             <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)} title="Tamni režim">
               {darkMode ? '☀️' : '🌙'}
