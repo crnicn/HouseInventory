@@ -3,25 +3,16 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import LocationInput from './LocationInput';
 
-const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy', 'Kids'];
-const CATEGORY_LABELS = {
-  Kitchen: 'Kuhinja',
-  Fridge: 'Frižider',
-  Bathroom: 'Kupatilo',
-  Pharmacy: 'Apoteka',
-  Kids: 'Deca',
-};
-
-export default function EditItemModal({ item, onClose, userName, locations = [] }) {
+export default function EditItemModal({ item, onClose, userName, locations = [], categories = [] }) {
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('Kitchen');
+  const [category, setCategory] = useState('');
   const [notes, setNotes] = useState('');
   const [location, setLocation] = useState('');
 
   useEffect(() => {
     if (item) {
       setName(item.name || '');
-      setCategory(item.category || 'Kitchen');
+      setCategory(item.category || categories[0]?.id || '');
       setNotes(item.notes || '');
       setLocation(item.location || '');
     }
@@ -58,13 +49,13 @@ export default function EditItemModal({ item, onClose, userName, locations = [] 
 
         <label className="modal-label">Kategorija</label>
         <div className="category-picker">
-          {CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <button
-              key={cat}
-              className={`cat-btn ${category === cat ? 'cat-btn-active' : ''}`}
-              onClick={() => setCategory(cat)}
+              key={cat.id}
+              className={`cat-btn ${category === cat.id ? 'cat-btn-active' : ''}`}
+              onClick={() => setCategory(cat.id)}
             >
-              {CATEGORY_LABELS[cat]}
+              {cat.label}
             </button>
           ))}
         </div>

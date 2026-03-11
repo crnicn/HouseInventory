@@ -4,16 +4,6 @@ import { db } from '../firebase';
 import SUGGESTIONS from '../data/suggestions';
 import LocationInput from './LocationInput';
 
-const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy', 'Kids'];
-
-const CATEGORY_LABELS = {
-  Kitchen: 'Kuhinja',
-  Fridge: 'Frižider',
-  Bathroom: 'Kupatilo',
-  Pharmacy: 'Apoteka',
-  Kids: 'Deca',
-};
-
 const getMatches = (query) => {
   if (!query || query.length < 2) return [];
   return SUGGESTIONS
@@ -21,9 +11,9 @@ const getMatches = (query) => {
     .slice(0, 5);
 };
 
-export default function AddItemModal({ visible, onClose, userName, locations = [] }) {
+export default function AddItemModal({ visible, onClose, userName, locations = [], categories = [] }) {
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('Kitchen');
+  const [category, setCategory] = useState(categories[0]?.id || '');
   const [needNow, setNeedNow] = useState(false);
   const [notes, setNotes] = useState('');
   const [location, setLocation] = useState('');
@@ -41,17 +31,17 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
 
   const handleAdd = async () => {
     if (!name.trim()) return;
-    const doc = {
+    const item = {
       name: name.trim(),
-      category,
+      category: category || categories[0]?.id || '',
       isLow: needNow,
       lastUpdated: serverTimestamp(),
       updatedBy: userName || 'Nepoznato',
     };
-    if (notes.trim()) doc.notes = notes.trim();
-    if (location.trim()) doc.location = location.trim();
-    await addDoc(collection(db, 'inventory'), doc);
-    setName(''); setCategory('Kitchen'); setNeedNow(false); setNotes(''); setLocation(''); setMatches([]);
+    if (notes.trim()) item.notes = notes.trim();
+    if (location.trim()) item.location = location.trim();
+    await addDoc(collection(db, 'inventory'), item);
+    setName(''); setCategory(categories[0]?.id || ''); setNeedNow(false); setNotes(''); setLocation(''); setMatches([]);
     onClose();
   };
 
@@ -83,13 +73,13 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
 
         <label className="modal-label">Kategorija</label>
         <div className="category-picker">
-          {CATEGORIES.map(cat => (
+          {categories.map(cat => (
             <button
-              key={cat}
-              className={`cat-btn ${category === cat ? 'cat-btn-active' : ''}`}
-              onClick={() => setCategory(cat)}
+              key={cat.id}
+              className={`cat-btn ${category === cat.id ? 'cat-btn-active' : ''}`}
+              onClick={() => setCategory(cat.id)}
             >
-              {CATEGORY_LABELS[cat]}
+              {cat.label}
             </button>
           ))}
         </div>

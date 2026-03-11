@@ -2,15 +2,7 @@ import { useState, useRef } from 'react';
 import { doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
-const CATEGORY_LABELS = {
-  Kitchen: 'Kuhinja',
-  Fridge: 'Frižider',
-  Bathroom: 'Kupatilo',
-  Pharmacy: 'Apoteka',
-  Kids: 'Deca',
-};
-
-export default function ItemRow({ item, userName, onEdit, onUndo }) {
+export default function ItemRow({ item, userName, onEdit, onUndo, categoryLabels = {} }) {
   const [swiped, setSwiped] = useState(false);
   const touchStartX = useRef(0);
   const longPressTimer = useRef(null);
@@ -64,7 +56,7 @@ export default function ItemRow({ item, userName, onEdit, onUndo }) {
           <div className="item-name">{item.name}</div>
           {item.notes && <div className="item-notes">{item.notes}</div>}
           <div className="item-meta">
-            {CATEGORY_LABELS[item.category] || item.category}
+            {categoryLabels[item.category] || item.category}
             {item.location ? `  ·  ${item.location}` : ''}
             {item.updatedBy ? `  ·  ${item.updatedBy}` : ''}
           </div>

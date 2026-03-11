@@ -646,3 +646,73 @@ body {
   from { transform: translateX(-50%) translateY(20px); opacity: 0; }
   to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+/* Category Manager */
+.category-list-manage {
+  margin-bottom: 16px;
+}
+
+.category-manage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.category-manage-row:last-child {
+  border-bottom: none;
+}
+
+.category-manage-label {
+  font-size: 16px;
+  color: var(--text);
+}
+
+.category-manage-count {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.category-remove-btn {
+  background: none;
+  border: none;
+  color: #F44336;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.category-remove-btn:hover {
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.category-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.category-add-row .modal-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.category-add-btn {
+  white-space: nowrap;
+  padding: 12px 20px !important;
+  flex: none !important;
+}
+
+/* Category picker wrapping for many categories */
+.category-picker {
+  flex-wrap: wrap;
+}

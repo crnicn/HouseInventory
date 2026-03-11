@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import { useUserName } from './hooks/useUserName';
 import ItemRow from './components/ItemRow';
@@ -9,21 +9,23 @@ import EditItemModal from './components/EditItemModal';
 import ShoppingToggle from './components/ShoppingToggle';
 import SearchBar from './components/SearchBar';
 import UndoToast from './components/UndoToast';
+import CategoryManager from './components/CategoryManager';
 
-const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy', 'Kids'];
-const CATEGORY_LABELS = {
-  Kitchen: 'Kuhinja',
-  Fridge: 'Frižider',
-  Bathroom: 'Kupatilo',
-  Pharmacy: 'Apoteka',
-  Kids: 'Deca',
-};
+const DEFAULT_CATEGORIES = [
+  { id: 'Kitchen', label: 'Kuhinja' },
+  { id: 'Fridge', label: 'Frižider' },
+  { id: 'Bathroom', label: 'Kupatilo' },
+  { id: 'Pharmacy', label: 'Apoteka' },
+  { id: 'Kids', label: 'Deca' },
+];
 
 export default function App() {
   const [inventory, setInventory] = useState([]);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [shoppingMode, setShoppingMode] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [userName, saveUserName] = useUserName();
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [nameInput, setNameInput] = useState('');
@@ -35,6 +37,10 @@ export default function App() {
   });
   const [undoInfo, setUndoInfo] = useState(null);
   const [locationFilter, setLocationFilter] = useState('');
+
+  // Derived: category IDs and labels map
+  const categoryIds = categories.map(c => c.id);
+  const categoryLabels = Object.fromEntries(categories.map(c => [c.id, c.label]));
 
   // Apply dark mode class
   useEffect(() => {
@@ -56,13 +62,44 @@ export default function App() {
     }
   };
 
-  // Real-time Firestore listener
+  // Real-time Firestore listener for inventory
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'inventory'), (snap) => {
       setInventory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return () => unsub();
   }, []);
+
+  // Real-time Firestore listener for categories
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'categories'), (snap) => {
+      if (snap.exists() && snap.data().list) {
+        setCategories(snap.data().list);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Save categories to Firestore
+  const saveCategories = async (newList) => {
+    await setDoc(doc(db, 'settings', 'categories'), { list: newList });
+  };
+
+  const handleAddCategory = async (cat) => {
+    const newList = [...categories, cat];
+    await saveCategories(newList);
+  };
+
+  const handleRemoveCategory = async (catId) => {
+    const newList = categories.filter(c => c.id !== catId);
+    await saveCategories(newList);
+  };
+
+  // Item counts per category (for category manager)
+  const itemCounts = {};
+  inventory.forEach(i => {
+    itemCounts[i.category] = (itemCounts[i.category] || 0) + 1;
+  });
 
   // Undo handler
   const handleUndo = useCallback((itemId, prevIsLow, name) => {
@@ -97,7 +134,7 @@ export default function App() {
   )].sort();
 
   // Shopping Mode: grouped by category, optionally filtered by location
-  const shoppingGrouped = CATEGORIES.map(cat => ({
+  const shoppingGrouped = categoryIds.map(cat => ({
     category: cat,
     items: filtered
       .filter(i => i.isLow && i.category === cat && (!locationFilter || i.location === locationFilter))
@@ -105,7 +142,7 @@ export default function App() {
   })).filter(g => g.items.length > 0);
 
   // Normal Mode: grouped by category
-  const grouped = CATEGORIES.map(cat => ({
+  const grouped = categoryIds.map(cat => ({
     category: cat,
     items: filtered
       .filter(i => i.category === cat)
@@ -114,11 +151,11 @@ export default function App() {
 
   // Share shopping list
   const shareList = async () => {
-    const lines = CATEGORIES
+    const lines = categoryIds
       .map(cat => {
         const items = inventory.filter(i => i.isLow && i.category === cat);
         if (items.length === 0) return null;
-        return `${CATEGORY_LABELS[cat]}:\n${items.map(i => {
+        return `${categoryLabels[cat] || cat}:\n${items.map(i => {
           const extra = [i.notes, i.location].filter(Boolean).join(', ');
           return `  - ${i.name}${extra ? ` (${extra})` : ''}`;
         }).join('\n')}`;
@@ -146,9 +183,14 @@ export default function App() {
             Kućni Inventar
             {lowCount > 0 && <span className="badge">{lowCount}</span>}
           </h1>
-          <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)} title="Tamni režim">
-            {darkMode ? '☀️' : '🌙'}
-          </button>
+          <div className="header-actions">
+            <button className="dark-toggle" onClick={() => setShowCategoryManager(true)} title="Kategorije">
+              ⚙
+            </button>
+            <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)} title="Tamni režim">
+              {darkMode ? '☀️' : '🌙'}
+            </button>
+          </div>
         </div>
         <ShoppingToggle
           value={shoppingMode}
@@ -193,11 +235,11 @@ export default function App() {
             shoppingGrouped.map(group => (
               <div key={group.category} className="category-section">
                 <div className="category-header shopping-cat-header">
-                  <strong>{CATEGORY_LABELS[group.category]}</strong>
+                  <strong>{categoryLabels[group.category] || group.category}</strong>
                   <span className="category-count"> ({group.items.length})</span>
                 </div>
                 {group.items.map(item => (
-                  <ItemRow key={item.id} item={item} userName={userName} onEdit={setEditItem} onUndo={handleUndo} />
+                  <ItemRow key={item.id} item={item} userName={userName} onEdit={setEditItem} onUndo={handleUndo} categoryLabels={categoryLabels} />
                 ))}
               </div>
             ))
@@ -206,7 +248,7 @@ export default function App() {
           )
         ) : (
           grouped.map(group => (
-            <CategorySection key={group.category} group={group} userName={userName} onEdit={setEditItem} onUndo={handleUndo} />
+            <CategorySection key={group.category} group={group} userName={userName} onEdit={setEditItem} onUndo={handleUndo} categoryLabels={categoryLabels} />
           ))
         )}
       </main>
@@ -215,8 +257,19 @@ export default function App() {
       <button className="fab" onClick={() => setShowAddModal(true)}>+</button>
 
       {/* Modals */}
-      <AddItemModal visible={showAddModal} onClose={() => setShowAddModal(false)} userName={userName} locations={knownLocations} />
-      <EditItemModal item={editItem} onClose={() => setEditItem(null)} userName={userName} locations={knownLocations} />
+      <AddItemModal visible={showAddModal} onClose={() => setShowAddModal(false)} userName={userName} locations={knownLocations} categories={categories} />
+      <EditItemModal item={editItem} onClose={() => setEditItem(null)} userName={userName} locations={knownLocations} categories={categories} />
+
+      {/* Category Manager */}
+      {showCategoryManager && (
+        <CategoryManager
+          categories={categories}
+          onAdd={handleAddCategory}
+          onRemove={handleRemoveCategory}
+          onClose={() => setShowCategoryManager(false)}
+          itemCounts={itemCounts}
+        />
+      )}
 
       {/* Undo Toast */}
       {undoInfo && (
