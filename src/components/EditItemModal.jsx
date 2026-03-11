@@ -1,25 +1,29 @@
 import { useState, useEffect } from 'react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import LocationInput from './LocationInput';
 
-const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy'];
+const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy', 'Kids'];
 const CATEGORY_LABELS = {
   Kitchen: 'Kuhinja',
   Fridge: 'Frižider',
   Bathroom: 'Kupatilo',
   Pharmacy: 'Apoteka',
+  Kids: 'Deca',
 };
 
-export default function EditItemModal({ item, onClose, userName }) {
+export default function EditItemModal({ item, onClose, userName, locations = [] }) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Kitchen');
   const [notes, setNotes] = useState('');
+  const [location, setLocation] = useState('');
 
   useEffect(() => {
     if (item) {
       setName(item.name || '');
       setCategory(item.category || 'Kitchen');
       setNotes(item.notes || '');
+      setLocation(item.location || '');
     }
   }, [item]);
 
@@ -29,6 +33,7 @@ export default function EditItemModal({ item, onClose, userName }) {
       name: name.trim(),
       category,
       notes: notes.trim(),
+      location: location.trim(),
       lastUpdated: serverTimestamp(),
       updatedBy: userName || 'Nepoznato',
     });
@@ -63,6 +68,9 @@ export default function EditItemModal({ item, onClose, userName }) {
             </button>
           ))}
         </div>
+
+        <label className="modal-label">Lokacija</label>
+        <LocationInput value={location} onChange={setLocation} locations={locations} />
 
         <label className="modal-label">Beleška</label>
         <input

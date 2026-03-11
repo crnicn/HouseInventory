@@ -10,12 +10,13 @@ import ShoppingToggle from './components/ShoppingToggle';
 import SearchBar from './components/SearchBar';
 import UndoToast from './components/UndoToast';
 
-const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy'];
+const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy', 'Kids'];
 const CATEGORY_LABELS = {
   Kitchen: 'Kuhinja',
   Fridge: 'Frižider',
   Bathroom: 'Kupatilo',
   Pharmacy: 'Apoteka',
+  Kids: 'Deca',
 };
 
 export default function App() {
@@ -33,6 +34,7 @@ export default function App() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
   const [undoInfo, setUndoInfo] = useState(null);
+  const [locationFilter, setLocationFilter] = useState('');
 
   // Apply dark mode class
   useEffect(() => {
@@ -86,10 +88,20 @@ export default function App() {
 
   const lowCount = inventory.filter(i => i.isLow).length;
 
-  // Shopping Mode: grouped by category
+  // Collect unique locations for autocomplete
+  const knownLocations = [...new Set(inventory.map(i => i.location).filter(Boolean))].sort();
+
+  // Locations that have low items (for shopping filter)
+  const shoppingLocations = [...new Set(
+    inventory.filter(i => i.isLow && i.location).map(i => i.location)
+  )].sort();
+
+  // Shopping Mode: grouped by category, optionally filtered by location
   const shoppingGrouped = CATEGORIES.map(cat => ({
     category: cat,
-    items: filtered.filter(i => i.isLow && i.category === cat).sort((a, b) => a.name.localeCompare(b.name)),
+    items: filtered
+      .filter(i => i.isLow && i.category === cat && (!locationFilter || i.location === locationFilter))
+      .sort((a, b) => a.name.localeCompare(b.name)),
   })).filter(g => g.items.length > 0);
 
   // Normal Mode: grouped by category
@@ -106,7 +118,10 @@ export default function App() {
       .map(cat => {
         const items = inventory.filter(i => i.isLow && i.category === cat);
         if (items.length === 0) return null;
-        return `${CATEGORY_LABELS[cat]}:\n${items.map(i => `  - ${i.name}${i.notes ? ` (${i.notes})` : ''}`).join('\n')}`;
+        return `${CATEGORY_LABELS[cat]}:\n${items.map(i => {
+          const extra = [i.notes, i.location].filter(Boolean).join(', ');
+          return `  - ${i.name}${extra ? ` (${extra})` : ''}`;
+        }).join('\n')}`;
       })
       .filter(Boolean);
 
@@ -150,6 +165,27 @@ export default function App() {
       {/* Search */}
       <SearchBar value={search} onChange={setSearch} />
 
+      {/* Location Filter (shopping mode only) */}
+      {shoppingMode && shoppingLocations.length > 0 && (
+        <div className="location-filter">
+          <button
+            className={`loc-filter-btn ${!locationFilter ? 'loc-filter-active' : ''}`}
+            onClick={() => setLocationFilter('')}
+          >
+            Sve
+          </button>
+          {shoppingLocations.map(loc => (
+            <button
+              key={loc}
+              className={`loc-filter-btn ${locationFilter === loc ? 'loc-filter-active' : ''}`}
+              onClick={() => setLocationFilter(locationFilter === loc ? '' : loc)}
+            >
+              {loc}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* List */}
       <main className="list">
         {shoppingMode ? (
@@ -179,8 +215,8 @@ export default function App() {
       <button className="fab" onClick={() => setShowAddModal(true)}>+</button>
 
       {/* Modals */}
-      <AddItemModal visible={showAddModal} onClose={() => setShowAddModal(false)} userName={userName} />
-      <EditItemModal item={editItem} onClose={() => setEditItem(null)} userName={userName} />
+      <AddItemModal visible={showAddModal} onClose={() => setShowAddModal(false)} userName={userName} locations={knownLocations} />
+      <EditItemModal item={editItem} onClose={() => setEditItem(null)} userName={userName} locations={knownLocations} />
 
       {/* Undo Toast */}
       {undoInfo && (

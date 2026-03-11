@@ -6,6 +6,7 @@ const CATEGORY_LABELS = {
   Fridge: 'Frižider',
   Bathroom: 'Kupatilo',
   Pharmacy: 'Apoteka',
+  Kids: 'Deca',
 };
 
 export default function CategorySection({ group, userName, onEdit, onUndo }) {

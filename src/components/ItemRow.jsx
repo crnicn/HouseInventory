@@ -7,6 +7,7 @@ const CATEGORY_LABELS = {
   Fridge: 'Frižider',
   Bathroom: 'Kupatilo',
   Pharmacy: 'Apoteka',
+  Kids: 'Deca',
 };
 
 export default function ItemRow({ item, userName, onEdit, onUndo }) {
@@ -64,6 +65,7 @@ export default function ItemRow({ item, userName, onEdit, onUndo }) {
           {item.notes && <div className="item-notes">{item.notes}</div>}
           <div className="item-meta">
             {CATEGORY_LABELS[item.category] || item.category}
+            {item.location ? `  ·  ${item.location}` : ''}
             {item.updatedBy ? `  ·  ${item.updatedBy}` : ''}
           </div>
         </div>

@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import SUGGESTIONS from '../data/suggestions';
+import LocationInput from './LocationInput';
 
-const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy'];
+const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy', 'Kids'];
 
 const CATEGORY_LABELS = {
   Kitchen: 'Kuhinja',
   Fridge: 'Frižider',
   Bathroom: 'Kupatilo',
   Pharmacy: 'Apoteka',
+  Kids: 'Deca',
 };
 
 const getMatches = (query) => {
@@ -19,11 +21,12 @@ const getMatches = (query) => {
     .slice(0, 5);
 };
 
-export default function AddItemModal({ visible, onClose, userName }) {
+export default function AddItemModal({ visible, onClose, userName, locations = [] }) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Kitchen');
   const [needNow, setNeedNow] = useState(false);
   const [notes, setNotes] = useState('');
+  const [location, setLocation] = useState('');
   const [matches, setMatches] = useState([]);
 
   const onChangeName = (text) => {
@@ -46,8 +49,9 @@ export default function AddItemModal({ visible, onClose, userName }) {
       updatedBy: userName || 'Nepoznato',
     };
     if (notes.trim()) doc.notes = notes.trim();
+    if (location.trim()) doc.location = location.trim();
     await addDoc(collection(db, 'inventory'), doc);
-    setName(''); setCategory('Kitchen'); setNeedNow(false); setNotes(''); setMatches([]);
+    setName(''); setCategory('Kitchen'); setNeedNow(false); setNotes(''); setLocation(''); setMatches([]);
     onClose();
   };
 
@@ -89,6 +93,9 @@ export default function AddItemModal({ visible, onClose, userName }) {
             </button>
           ))}
         </div>
+
+        <label className="modal-label">Lokacija</label>
+        <LocationInput value={location} onChange={setLocation} locations={locations} />
 
         <label className="modal-label">Beleška (opciono)</label>
         <input

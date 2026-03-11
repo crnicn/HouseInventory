@@ -26,4 +26,9 @@ export default [
   'Tablete za alergiju', 'Sirup za kašalj', 'Kapi za oči', 'Krema za sunčanje',
   'Baterije za toplomer', 'Melatonin', 'Probiotik', 'Balzam za usne',
   'Dezinfekcioni gel', 'Lek za prehladu', 'Pastile za grlo', 'Antacid',
+
+  // Deca
+  'Pelene', 'Vlažne maramice', 'Dečji šampon', 'Dečja krema', 'Mleko za bebe',
+  'Kašice', 'Dečji sok', 'Dečja pasta za zube', 'Dečja četkica', 'Dečji losion',
+  'Pudra za bebe', 'Cucla', 'Flašica', 'Dečji deterdžent', 'Salvete',
 ];
