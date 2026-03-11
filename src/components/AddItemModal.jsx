@@ -5,6 +5,13 @@ import SUGGESTIONS from '../data/suggestions';
 
 const CATEGORIES = ['Kitchen', 'Fridge', 'Bathroom', 'Pharmacy'];
 
+const CATEGORY_LABELS = {
+  Kitchen: 'Kuhinja',
+  Fridge: 'Frižider',
+  Bathroom: 'Kupatilo',
+  Pharmacy: 'Apoteka',
+};
+
 const getMatches = (query) => {
   if (!query || query.length < 2) return [];
   return SUGGESTIONS
@@ -35,7 +42,7 @@ export default function AddItemModal({ visible, onClose, userName }) {
       category,
       isLow: needNow,
       lastUpdated: serverTimestamp(),
-      updatedBy: userName || 'Unknown',
+      updatedBy: userName || 'Nepoznato',
     });
     setName(''); setCategory('Kitchen'); setNeedNow(false); setMatches([]);
     onClose();
@@ -46,11 +53,11 @@ export default function AddItemModal({ visible, onClose, userName }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">Add Item</h2>
+        <h2 className="modal-title">Dodaj stavku</h2>
 
         <input
           className="modal-input"
-          placeholder="Item name..."
+          placeholder="Naziv stavke..."
           value={name}
           onChange={(e) => onChangeName(e.target.value)}
           autoFocus
@@ -67,7 +74,7 @@ export default function AddItemModal({ visible, onClose, userName }) {
           </div>
         )}
 
-        <label className="modal-label">Category</label>
+        <label className="modal-label">Kategorija</label>
         <div className="category-picker">
           {CATEGORIES.map(cat => (
             <button
@@ -75,13 +82,13 @@ export default function AddItemModal({ visible, onClose, userName }) {
               className={`cat-btn ${category === cat ? 'cat-btn-active' : ''}`}
               onClick={() => setCategory(cat)}
             >
-              {cat}
+              {CATEGORY_LABELS[cat]}
             </button>
           ))}
         </div>
 
         <div className="need-now-row">
-          <span className="modal-label">Add to shopping list now?</span>
+          <span className="modal-label">Dodaj na listu za kupovinu?</span>
           <label className="switch">
             <input type="checkbox" checked={needNow} onChange={(e) => setNeedNow(e.target.checked)} />
             <span className="slider"></span>
@@ -89,8 +96,8 @@ export default function AddItemModal({ visible, onClose, userName }) {
         </div>
 
         <div className="modal-actions">
-          <button className="btn-cancel" onClick={onClose}>Cancel</button>
-          <button className="btn-add" onClick={handleAdd}>Add Item</button>
+          <button className="btn-cancel" onClick={onClose}>Otkaži</button>
+          <button className="btn-add" onClick={handleAdd}>Dodaj</button>
         </div>
       </div>
     </div>

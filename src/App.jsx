@@ -54,7 +54,7 @@ export default function App() {
     <div className="app">
       {/* Header */}
       <header className="header">
-        <h1 className="title">House Inventory</h1>
+        <h1 className="title">Kućni Inventar</h1>
         <ShoppingToggle
           value={shoppingMode}
           onValueChange={setShoppingMode}
@@ -70,7 +70,7 @@ export default function App() {
               <ItemRow key={item.id} item={item} userName={userName} />
             ))
           ) : (
-            <p className="empty">Nothing needed - all stocked up!</p>
+            <p className="empty">Sve je na stanju!</p>
           )
         ) : (
           grouped.map(group => (
@@ -93,18 +93,18 @@ export default function App() {
       {showNamePrompt && (
         <div className="modal-overlay">
           <div className="name-modal">
-            <h2>Welcome!</h2>
-            <p>Enter your name so your partner knows who updated items:</p>
+            <h2>Dobrodošli!</h2>
+            <p>Unesite svoje ime kako bi partner znao ko je ažurirao stavke:</p>
             <input
               className="modal-input"
-              placeholder="Your name..."
+              placeholder="Vaše ime..."
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
               autoFocus
               onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
             />
             <button className="btn-add" style={{ width: '100%' }} onClick={handleSaveName}>
-              Continue
+              Nastavi
             </button>
           </div>
         </div>

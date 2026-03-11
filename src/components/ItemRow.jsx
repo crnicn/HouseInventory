@@ -1,12 +1,19 @@
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
+const CATEGORY_LABELS = {
+  Kitchen: 'Kuhinja',
+  Fridge: 'Frižider',
+  Bathroom: 'Kupatilo',
+  Pharmacy: 'Apoteka',
+};
+
 export default function ItemRow({ item, userName }) {
   const toggle = async () => {
     await updateDoc(doc(db, 'inventory', item.id), {
       isLow: !item.isLow,
       lastUpdated: serverTimestamp(),
-      updatedBy: userName || 'Unknown',
+      updatedBy: userName || 'Nepoznato',
     });
   };
 
@@ -18,12 +25,12 @@ export default function ItemRow({ item, userName }) {
       <div>
         <div className="item-name">{item.name}</div>
         <div className="item-meta">
-          {item.category}
-          {item.updatedBy ? `  ·  Updated by ${item.updatedBy}` : ''}
+          {CATEGORY_LABELS[item.category] || item.category}
+          {item.updatedBy ? `  ·  Ažurirao/la ${item.updatedBy}` : ''}
         </div>
       </div>
       <div className="item-status">
-        {item.isLow ? 'Needs Refill' : 'In Stock'}
+        {item.isLow ? 'Dopuniti' : 'Na stanju'}
       </div>
     </button>
   );
