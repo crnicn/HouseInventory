@@ -1,3 +1,34 @@
+/* ===== CSS Variables (Light/Dark) ===== */
+:root, [data-theme="light"] {
+  --bg: #f5f5f5;
+  --bg-card: #fff;
+  --bg-header: #fff;
+  --bg-category: #e0e0e0;
+  --text: #333;
+  --text-secondary: #666;
+  --text-muted: #888;
+  --border: #ddd;
+  --border-light: #f0f0f0;
+  --overlay: rgba(0,0,0,0.4);
+  --shadow: rgba(0,0,0,0.1);
+  --search-bg: #fff;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --bg-card: #1e1e1e;
+  --bg-header: #1e1e1e;
+  --bg-category: #2a2a2a;
+  --text: #e0e0e0;
+  --text-secondary: #aaa;
+  --text-muted: #777;
+  --border: #333;
+  --border-light: #2a2a2a;
+  --overlay: rgba(0,0,0,0.7);
+  --shadow: rgba(0,0,0,0.3);
+  --search-bg: #2a2a2a;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,8 +37,8 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f5f5f5;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -15,23 +46,71 @@ body {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
-  background: #f5f5f5;
+  background: var(--bg);
   position: relative;
 }
 
 /* Header */
 .header {
   padding: 16px;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: var(--bg-header);
+  box-shadow: 0 2px 4px var(--shadow);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .title {
   font-size: 22px;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  background: #F44336;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 12px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.dark-toggle {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.share-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #2196F3;
+  background: transparent;
+  color: #2196F3;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.share-btn:active {
+  background: #2196F3;
+  color: #fff;
 }
 
 .toggle-row {
@@ -50,6 +129,7 @@ body {
   display: inline-block;
   width: 50px;
   height: 28px;
+  flex-shrink: 0;
 }
 
 .switch input {
@@ -87,6 +167,46 @@ body {
   transform: translateX(22px);
 }
 
+/* Search Bar */
+.search-bar {
+  position: relative;
+  padding: 8px 12px;
+  background: var(--bg);
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--search-bg);
+  color: var(--text);
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #2196F3;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-clear {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
 /* List */
 .list {
   padding-bottom: 80px;
@@ -96,24 +216,56 @@ body {
   text-align: center;
   margin-top: 60px;
   font-size: 16px;
-  color: #888;
+  color: var(--text-muted);
 }
 
 /* Item Row */
+.item-row-wrapper {
+  position: relative;
+  overflow: hidden;
+  margin: 5px 12px;
+  border-radius: 10px;
+}
+
+.item-row-wrapper .delete-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  background: #d32f2f;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.item-row-wrapper.swiped .delete-btn {
+  opacity: 1;
+}
+
+.item-row-wrapper.swiped .item-row {
+  transform: translateX(-60px);
+}
+
 .item-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  margin: 5px 12px;
   border-radius: 10px;
   min-height: 64px;
   border: none;
-  width: calc(100% - 24px);
+  width: 100%;
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.2s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
@@ -129,10 +281,22 @@ body {
   background: #F44336;
 }
 
+.item-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .item-name {
   font-size: 17px;
   font-weight: 600;
   color: #fff;
+}
+
+.item-notes {
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
+  margin-top: 2px;
+  font-style: italic;
 }
 
 .item-meta {
@@ -159,27 +323,40 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: #e0e0e0;
+  background: var(--bg-category);
   border: none;
   width: 100%;
   cursor: pointer;
   font-family: inherit;
   font-size: 15px;
   text-align: left;
+  color: var(--text);
+}
+
+.shopping-cat-header {
+  cursor: default;
 }
 
 .category-count {
   font-weight: normal;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .category-low {
   color: #F44336;
 }
 
+.category-empty {
+  text-align: center;
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .chevron {
   font-size: 12px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 /* FAB */
@@ -210,7 +387,7 @@ body {
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
+  background: var(--overlay);
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -219,21 +396,23 @@ body {
 }
 
 .modal-sheet {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 20px 20px 0 0;
   padding: 24px;
   padding-bottom: 40px;
   width: 100%;
   max-width: 480px;
+  color: var(--text);
 }
 
 .name-modal {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 24px;
   width: 85%;
   max-width: 360px;
   margin: auto;
+  color: var(--text);
 }
 
 .name-modal h2 {
@@ -243,28 +422,35 @@ body {
 
 .name-modal p {
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 16px;
 }
 
 .modal-title {
   font-size: 20px;
   margin-bottom: 16px;
+  font-weight: bold;
 }
 
 .modal-input {
   width: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
   font-size: 16px;
   margin-bottom: 4px;
   font-family: inherit;
   outline: none;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .modal-input:focus {
   border-color: #2196F3;
+}
+
+.modal-input::placeholder {
+  color: var(--text-muted);
 }
 
 .modal-label {
@@ -272,15 +458,16 @@ body {
   font-weight: 600;
   margin-top: 12px;
   margin-bottom: 8px;
-  color: #555;
+  color: var(--text-secondary);
   display: block;
 }
 
 /* Suggestions */
 .suggestions {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 12px;
+  background: var(--bg-card);
 }
 
 .suggestion {
@@ -288,16 +475,17 @@ body {
   width: 100%;
   padding: 12px;
   border: none;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border-light);
   background: none;
   text-align: left;
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
+  color: var(--text);
 }
 
 .suggestion:hover {
-  background: #f5f5f5;
+  background: var(--bg);
 }
 
 .suggestion:last-child {
@@ -314,10 +502,10 @@ body {
   flex: 1;
   padding: 8px;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
   font-size: 12px;
-  color: #555;
+  color: var(--text-secondary);
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
@@ -349,10 +537,10 @@ body {
   flex: 1;
   padding: 14px;
   border-radius: 10px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
   font-size: 16px;
-  color: #555;
+  color: var(--text-secondary);
   cursor: pointer;
   font-family: inherit;
 }
@@ -372,4 +560,39 @@ body {
 
 .btn-add:active, .btn-cancel:active {
   opacity: 0.7;
+}
+
+/* Undo Toast */
+.undo-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #323232;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 50;
+  animation: slideUp 0.2s ease-out;
+}
+
+.undo-btn {
+  background: none;
+  border: none;
+  color: #4FC3F7;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 8px;
+}
+
+@keyframes slideUp {
+  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  to { transform: translateX(-50%) translateY(0); opacity: 1; }
 }

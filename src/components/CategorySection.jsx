@@ -8,7 +8,7 @@ const CATEGORY_LABELS = {
   Pharmacy: 'Apoteka',
 };
 
-export default function CategorySection({ group, userName }) {
+export default function CategorySection({ group, userName, onEdit, onUndo }) {
   const [collapsed, setCollapsed] = useState(false);
   const lowCount = group.items.filter(i => i.isLow).length;
 
@@ -22,9 +22,15 @@ export default function CategorySection({ group, userName }) {
         </span>
         <span className="chevron">{collapsed ? '▶' : '▼'}</span>
       </button>
-      {!collapsed && group.items.map(item => (
-        <ItemRow key={item.id} item={item} userName={userName} />
-      ))}
+      {!collapsed && (
+        group.items.length > 0 ? (
+          group.items.map(item => (
+            <ItemRow key={item.id} item={item} userName={userName} onEdit={onEdit} onUndo={onUndo} />
+          ))
+        ) : (
+          <p className="category-empty">Nema stavki</p>
+        )
+      )}
     </div>
   );
 }

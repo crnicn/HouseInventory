@@ -23,6 +23,7 @@ export default function AddItemModal({ visible, onClose, userName }) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Kitchen');
   const [needNow, setNeedNow] = useState(false);
+  const [notes, setNotes] = useState('');
   const [matches, setMatches] = useState([]);
 
   const onChangeName = (text) => {
@@ -37,14 +38,16 @@ export default function AddItemModal({ visible, onClose, userName }) {
 
   const handleAdd = async () => {
     if (!name.trim()) return;
-    await addDoc(collection(db, 'inventory'), {
+    const doc = {
       name: name.trim(),
       category,
       isLow: needNow,
       lastUpdated: serverTimestamp(),
       updatedBy: userName || 'Nepoznato',
-    });
-    setName(''); setCategory('Kitchen'); setNeedNow(false); setMatches([]);
+    };
+    if (notes.trim()) doc.notes = notes.trim();
+    await addDoc(collection(db, 'inventory'), doc);
+    setName(''); setCategory('Kitchen'); setNeedNow(false); setNotes(''); setMatches([]);
     onClose();
   };
 
@@ -86,6 +89,14 @@ export default function AddItemModal({ visible, onClose, userName }) {
             </button>
           ))}
         </div>
+
+        <label className="modal-label">Beleška (opciono)</label>
+        <input
+          className="modal-input"
+          placeholder="npr. plava pakovanja, 2 komada..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
 
         <div className="need-now-row">
           <span className="modal-label">Dodaj na listu za kupovinu?</span>
