@@ -64,7 +64,7 @@ export default function LocationInput({ value = [], onChange, locations = [] }) 
           onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
           onKeyDown={handleKeyDown}
         />
-        {input.trim() && (
+        {input.trim() && !locations.some(l => l.toLowerCase() === input.trim().toLowerCase()) && !selected.some(l => l.toLowerCase() === input.trim().toLowerCase()) && (
           <button
             type="button"
             className="location-add-btn"
