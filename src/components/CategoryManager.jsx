@@ -1,14 +1,12 @@
 import { useState } from 'react';
 
-export default function CategoryManager({ categories, onAdd, onRemove, onClose, itemCounts }) {
+export default function CategoryManager({ categories, onAdd, onRemove, onClose, itemCounts, locations = [], onRemoveLocation }) {
   const [newLabel, setNewLabel] = useState('');
 
   const handleAdd = () => {
     const label = newLabel.trim();
     if (!label) return;
-    // Generate an ID from the label (capitalize first letter, remove spaces)
     const id = label.charAt(0).toUpperCase() + label.slice(1).replace(/\s+/g, '');
-    // Check for duplicate
     if (categories.some(c => c.id === id || c.label.toLowerCase() === label.toLowerCase())) {
       alert('Kategorija već postoji!');
       return;
@@ -24,6 +22,12 @@ export default function CategoryManager({ categories, onAdd, onRemove, onClose, 
       : `Obrisati kategoriju "${cat.label}"?`;
     if (window.confirm(msg)) {
       onRemove(cat.id);
+    }
+  };
+
+  const handleRemoveLocation = (loc) => {
+    if (window.confirm(`Obrisati lokaciju "${loc}" sa svih stavki?`)) {
+      onRemoveLocation(loc);
     }
   };
 
@@ -58,6 +62,22 @@ export default function CategoryManager({ categories, onAdd, onRemove, onClose, 
           />
           <button className="btn-add category-add-btn" onClick={handleAdd}>Dodaj</button>
         </div>
+
+        {locations.length > 0 && (
+          <>
+            <h2 className="modal-title" style={{ marginTop: 24 }}>Lokacije</h2>
+            <div className="category-list-manage">
+              {locations.map(loc => (
+                <div key={loc} className="category-manage-row">
+                  <span className="category-manage-label">{loc}</span>
+                  <button className="category-remove-btn" onClick={() => handleRemoveLocation(loc)} title="Obriši">
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="modal-actions">
           <button className="btn-cancel" onClick={onClose}>Zatvori</button>

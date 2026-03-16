@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp, arrayRemove } from 'firebase/firestore';
 import { db } from './firebase';
 import { useUserName } from './hooks/useUserName';
 import ItemRow from './components/ItemRow';
@@ -93,6 +93,22 @@ export default function App() {
   const handleRemoveCategory = async (catId) => {
     const newList = categories.filter(c => c.id !== catId);
     await saveCategories(newList);
+  };
+
+  // Remove a location from all items that have it
+  const handleRemoveLocation = async (loc) => {
+    const itemsWithLoc = inventory.filter(i => {
+      const l = i.location;
+      return Array.isArray(l) ? l.includes(loc) : l === loc;
+    });
+    await Promise.all(itemsWithLoc.map(item => {
+      const l = item.location;
+      if (Array.isArray(l)) {
+        return updateDoc(doc(db, 'inventory', item.id), { location: arrayRemove(loc) });
+      }
+      // legacy string field — clear it
+      return updateDoc(doc(db, 'inventory', item.id), { location: [] });
+    }));
   };
 
   // Item counts per category (for category manager)
@@ -279,6 +295,8 @@ export default function App() {
           onRemove={handleRemoveCategory}
           onClose={() => setShowCategoryManager(false)}
           itemCounts={itemCounts}
+          locations={knownLocations}
+          onRemoveLocation={handleRemoveLocation}
         />
       )}
 
