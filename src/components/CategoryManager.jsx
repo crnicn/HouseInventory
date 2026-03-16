@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 export default function CategoryManager({ categories, onAdd, onRemove, onClose, itemCounts, locations = [], onRemoveLocation }) {
+  const [tab, setTab] = useState('categories');
   const [newLabel, setNewLabel] = useState('');
 
   const handleAdd = () => {
@@ -34,48 +35,68 @@ export default function CategoryManager({ categories, onAdd, onRemove, onClose, 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
-        <h2 className="modal-title">Kategorije</h2>
-
-        <div className="category-list-manage">
-          {categories.map(cat => (
-            <div key={cat.id} className="category-manage-row">
-              <span className="category-manage-label">
-                {cat.label}
-                {(itemCounts[cat.id] || 0) > 0 && (
-                  <span className="category-manage-count"> ({itemCounts[cat.id]})</span>
-                )}
-              </span>
-              <button className="category-remove-btn" onClick={() => handleRemove(cat)} title="Obriši">
-                ✕
-              </button>
-            </div>
-          ))}
+        <div className="settings-tabs">
+          <button
+            className={`settings-tab ${tab === 'categories' ? 'settings-tab-active' : ''}`}
+            onClick={() => setTab('categories')}
+          >
+            Kategorije
+          </button>
+          <button
+            className={`settings-tab ${tab === 'locations' ? 'settings-tab-active' : ''}`}
+            onClick={() => setTab('locations')}
+          >
+            Lokacije
+          </button>
         </div>
 
-        <div className="category-add-row">
-          <input
-            className="modal-input"
-            placeholder="Nova kategorija..."
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-          />
-          <button className="btn-add category-add-btn" onClick={handleAdd}>Dodaj</button>
-        </div>
-
-        {locations.length > 0 && (
+        {tab === 'categories' && (
           <>
-            <h2 className="modal-title" style={{ marginTop: 24 }}>Lokacije</h2>
             <div className="category-list-manage">
-              {locations.map(loc => (
-                <div key={loc} className="category-manage-row">
-                  <span className="category-manage-label">{loc}</span>
-                  <button className="category-remove-btn" onClick={() => handleRemoveLocation(loc)} title="Obriši">
+              {categories.map(cat => (
+                <div key={cat.id} className="category-manage-row">
+                  <span className="category-manage-label">
+                    {cat.label}
+                    {(itemCounts[cat.id] || 0) > 0 && (
+                      <span className="category-manage-count"> ({itemCounts[cat.id]})</span>
+                    )}
+                  </span>
+                  <button className="category-remove-btn" onClick={() => handleRemove(cat)} title="Obriši">
                     ✕
                   </button>
                 </div>
               ))}
             </div>
+
+            <div className="category-add-row">
+              <input
+                className="modal-input"
+                placeholder="Nova kategorija..."
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+              />
+              <button className="btn-add category-add-btn" onClick={handleAdd}>Dodaj</button>
+            </div>
+          </>
+        )}
+
+        {tab === 'locations' && (
+          <>
+            {locations.length > 0 ? (
+              <div className="category-list-manage">
+                {locations.map(loc => (
+                  <div key={loc} className="category-manage-row">
+                    <span className="category-manage-label">{loc}</span>
+                    <button className="category-remove-btn" onClick={() => handleRemoveLocation(loc)} title="Obriši">
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="empty" style={{ marginTop: 24 }}>Nema sačuvanih lokacija</p>
+            )}
           </>
         )}
 
