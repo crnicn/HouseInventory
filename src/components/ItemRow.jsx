@@ -65,9 +65,11 @@ export default function ItemRow({ item, userName, onEdit, onUndo, categoryLabels
           {item.isLow ? 'Dopuniti' : 'Na stanju'}
         </div>
       </button>
-      <button className="delete-btn" onClick={handleDelete} title="Obriši">
-        ✕
-      </button>
+      {swiped && (
+        <button className="delete-btn" onClick={handleDelete} title="Obriši">
+          ✕
+        </button>
+      )}
     </div>
   );
 }
