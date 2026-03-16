@@ -16,7 +16,7 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
   const [category, setCategory] = useState(categories[0]?.id || '');
   const [needNow, setNeedNow] = useState(false);
   const [notes, setNotes] = useState('');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState([]);
   const [matches, setMatches] = useState([]);
 
   const onChangeName = (text) => {
@@ -39,9 +39,9 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
       updatedBy: userName || 'Nepoznato',
     };
     if (notes.trim()) item.notes = notes.trim();
-    if (location.trim()) item.location = location.trim();
+    if (location.length > 0) item.location = location;
     await addDoc(collection(db, 'inventory'), item);
-    setName(''); setCategory(categories[0]?.id || ''); setNeedNow(false); setNotes(''); setLocation(''); setMatches([]);
+    setName(''); setCategory(categories[0]?.id || ''); setNeedNow(false); setNotes(''); setLocation([]); setMatches([]);
     onClose();
   };
 

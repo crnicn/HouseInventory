@@ -7,14 +7,15 @@ export default function EditItemModal({ item, onClose, userName, locations = [],
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
   const [notes, setNotes] = useState('');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState([]);
 
   useEffect(() => {
     if (item) {
       setName(item.name || '');
       setCategory(item.category || categories[0]?.id || '');
       setNotes(item.notes || '');
-      setLocation(item.location || '');
+      const loc = item.location;
+      setLocation(Array.isArray(loc) ? loc : (loc ? [loc] : []));
     }
   }, [item]);
 
@@ -24,7 +25,7 @@ export default function EditItemModal({ item, onClose, userName, locations = [],
       name: name.trim(),
       category,
       notes: notes.trim(),
-      location: location.trim(),
+      location: location.length > 0 ? location : [],
       lastUpdated: serverTimestamp(),
       updatedBy: userName || 'Nepoznato',
     });

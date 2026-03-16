@@ -57,7 +57,7 @@ export default function ItemRow({ item, userName, onEdit, onUndo, categoryLabels
           {item.notes && <div className="item-notes">{item.notes}</div>}
           <div className="item-meta">
             {categoryLabels[item.category] || item.category}
-            {item.location ? `  ·  ${item.location}` : ''}
+            {item.location && (Array.isArray(item.location) ? item.location.length > 0 : item.location) ? `  ·  ${Array.isArray(item.location) ? item.location.join(', ') : item.location}` : ''}
             {item.updatedBy ? `  ·  ${item.updatedBy}` : ''}
           </div>
         </div>

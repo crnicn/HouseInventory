@@ -542,6 +542,67 @@ body {
   margin-top: -2px;
 }
 
+/* Location Chips Multi-select */
+.location-chips-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  cursor: text;
+}
+
+.location-chips-input:focus-within {
+  border-color: #2196F3;
+}
+
+.location-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 14px;
+  background: #2196F3;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.location-chip-remove {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.location-chip-remove:hover {
+  color: #fff;
+}
+
+.location-chip-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  flex: 1;
+  min-width: 80px;
+  padding: 4px 0;
+}
+
+.location-chip-input::placeholder {
+  color: var(--text-muted);
+}
+
 /* Category Picker */
 .category-picker {
   display: flex;

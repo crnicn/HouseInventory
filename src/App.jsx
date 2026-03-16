@@ -125,19 +125,29 @@ export default function App() {
 
   const lowCount = inventory.filter(i => i.isLow).length;
 
-  // Collect unique locations for autocomplete
-  const knownLocations = [...new Set(inventory.map(i => i.location).filter(Boolean))].sort();
+  // Collect unique locations for autocomplete (handles both string and array)
+  const knownLocations = [...new Set(
+    inventory.flatMap(i => {
+      const loc = i.location;
+      if (Array.isArray(loc)) return loc;
+      return loc ? [loc] : [];
+    })
+  )].sort();
 
   // Locations that have low items (for shopping filter)
   const shoppingLocations = [...new Set(
-    inventory.filter(i => i.isLow && i.location).map(i => i.location)
+    inventory.filter(i => i.isLow).flatMap(i => {
+      const loc = i.location;
+      if (Array.isArray(loc)) return loc;
+      return loc ? [loc] : [];
+    })
   )].sort();
 
   // Shopping Mode: grouped by category, optionally filtered by location
   const shoppingGrouped = categoryIds.map(cat => ({
     category: cat,
     items: filtered
-      .filter(i => i.isLow && i.category === cat && (!locationFilter || i.location === locationFilter))
+      .filter(i => i.isLow && i.category === cat && (!locationFilter || (Array.isArray(i.location) ? i.location.includes(locationFilter) : i.location === locationFilter)))
       .sort((a, b) => a.name.localeCompare(b.name)),
   })).filter(g => g.items.length > 0);
 
@@ -156,7 +166,8 @@ export default function App() {
         const items = inventory.filter(i => i.isLow && i.category === cat);
         if (items.length === 0) return null;
         return `${categoryLabels[cat] || cat}:\n${items.map(i => {
-          const extra = [i.notes, i.location].filter(Boolean).join(', ');
+          const locStr = Array.isArray(i.location) ? i.location.join(', ') : (i.location || '');
+          const extra = [i.notes, locStr].filter(Boolean).join(', ');
           return `  - ${i.name}${extra ? ` (${extra})` : ''}`;
         }).join('\n')}`;
       })
