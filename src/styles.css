@@ -603,6 +603,21 @@ body {
   color: var(--text-muted);
 }
 
+.location-add-btn {
+  background: #2196F3;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 28px;
+  text-align: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
 /* Category Picker */
 .category-picker {
   display: flex;

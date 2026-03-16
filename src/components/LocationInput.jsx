@@ -64,6 +64,15 @@ export default function LocationInput({ value = [], onChange, locations = [] }) 
           onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
           onKeyDown={handleKeyDown}
         />
+        {input.trim() && (
+          <button
+            type="button"
+            className="location-add-btn"
+            onMouseDown={(e) => { e.preventDefault(); addLocation(input); }}
+          >
+            +
+          </button>
+        )}
       </div>
       {showSuggestions && filtered.length > 0 && (
         <div className="suggestions location-suggestions">
