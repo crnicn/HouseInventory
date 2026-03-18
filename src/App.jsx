@@ -407,6 +407,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Version */}
+      <footer className="app-version">v1.4</footer>
     </div>
   );
 }

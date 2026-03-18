@@ -899,3 +899,11 @@ body {
   font-size: 14px;
   opacity: 0.85;
 }
+
+/* App version footer */
+.app-version {
+  text-align: center;
+  padding: 24px 0 80px;
+  font-size: 12px;
+  opacity: 0.4;
+}
