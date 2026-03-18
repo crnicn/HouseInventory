@@ -165,8 +165,11 @@ export default function App() {
 
   // Mark all items in a category (or all) as stocked
   const markAllStocked = async (categoryId) => {
-    const batch = writeBatch(db);
     const items = inventory.filter(i => i.isLow && (!categoryId || i.category === categoryId));
+    if (items.length === 0) return;
+    const label = categoryId ? (categoryLabels[categoryId] || categoryId) : 'sve kategorije';
+    if (!window.confirm(`Označiti ${items.length} stavki kao "Na stanju" (${label})?`)) return;
+    const batch = writeBatch(db);
     items.forEach(item => {
       batch.update(doc(db, 'inventory', item.id), {
         isLow: false,
