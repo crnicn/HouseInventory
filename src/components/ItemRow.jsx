@@ -9,11 +9,14 @@ export default function ItemRow({ item, userName, onEdit, onUndo, categoryLabels
 
   const toggle = async () => {
     const prevIsLow = item.isLow;
-    await updateDoc(doc(db, 'inventory', item.id), {
+    const update = {
       isLow: !item.isLow,
       lastUpdated: serverTimestamp(),
       updatedBy: userName || 'Nepoznato',
-    });
+    };
+    // When marking as stocked, record the date
+    if (item.isLow) update.lastStocked = serverTimestamp();
+    await updateDoc(doc(db, 'inventory', item.id), update);
     if (onUndo) onUndo(item.id, prevIsLow, userName);
   };
 
@@ -53,12 +56,16 @@ export default function ItemRow({ item, userName, onEdit, onUndo, categoryLabels
         onContextMenu={(e) => { e.preventDefault(); if (onEdit) onEdit(item); }}
       >
         <div className="item-info">
-          <div className="item-name">{item.name}</div>
+          <div className="item-name">
+            {item.name}
+            {item.quantity && <span className="item-qty"> x{item.quantity}</span>}
+          </div>
           {item.notes && <div className="item-notes">{item.notes}</div>}
           <div className="item-meta">
             {categoryLabels[item.category] || item.category}
             {item.location && (Array.isArray(item.location) ? item.location.length > 0 : item.location) ? `  ·  ${Array.isArray(item.location) ? item.location.join(', ') : item.location}` : ''}
             {item.updatedBy ? `  ·  ${item.updatedBy}` : ''}
+            {item.lastStocked && item.lastStocked.toDate ? `  ·  ${item.lastStocked.toDate().toLocaleDateString('sr-Latn')}` : ''}
           </div>
         </div>
         <div className="item-status">

@@ -820,3 +820,82 @@ body {
 .category-picker {
   flex-wrap: wrap;
 }
+
+/* Sort + Search Row */
+.sort-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 0 0;
+}
+
+.search-flex {
+  flex: 1;
+}
+
+.sort-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.sort-btn:active {
+  background: #2196F3;
+  color: #fff;
+  border-color: #2196F3;
+}
+
+/* Mark All Stocked */
+.mark-all-bar {
+  padding: 8px 12px;
+}
+
+.mark-all-btn {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #4CAF50;
+  background: transparent;
+  color: #4CAF50;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mark-all-btn:active {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.mark-cat-btn {
+  background: none;
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.mark-cat-btn:active {
+  background: #4CAF50;
+  color: #fff;
+}
+
+/* Item quantity */
+.item-qty {
+  font-weight: 400;
+  font-size: 14px;
+  opacity: 0.85;
+}

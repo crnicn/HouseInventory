@@ -16,6 +16,7 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
   const [category, setCategory] = useState(categories[0]?.id || '');
   const [needNow, setNeedNow] = useState(false);
   const [notes, setNotes] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [location, setLocation] = useState([]);
   const [matches, setMatches] = useState([]);
 
@@ -39,9 +40,10 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
       updatedBy: userName || 'Nepoznato',
     };
     if (notes.trim()) item.notes = notes.trim();
+    if (quantity.trim()) item.quantity = quantity.trim();
     if (location.length > 0) item.location = location;
     await addDoc(collection(db, 'inventory'), item);
-    setName(''); setCategory(categories[0]?.id || ''); setNeedNow(false); setNotes(''); setLocation([]); setMatches([]);
+    setName(''); setCategory(categories[0]?.id || ''); setNeedNow(false); setNotes(''); setQuantity(''); setLocation([]); setMatches([]);
     onClose();
   };
 
@@ -87,10 +89,18 @@ export default function AddItemModal({ visible, onClose, userName, locations = [
         <label className="modal-label">Lokacija</label>
         <LocationInput value={location} onChange={setLocation} locations={locations} />
 
+        <label className="modal-label">Količina (opciono)</label>
+        <input
+          className="modal-input"
+          placeholder="npr. 2 komada, 1 litar..."
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+        />
+
         <label className="modal-label">Beleška (opciono)</label>
         <input
           className="modal-input"
-          placeholder="npr. plava pakovanja, 2 komada..."
+          placeholder="npr. plava pakovanja..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />

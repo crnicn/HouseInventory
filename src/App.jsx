@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp, arrayRemove } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc, serverTimestamp, arrayRemove, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
 import { useUserName } from './hooks/useUserName';
 import ItemRow from './components/ItemRow';
@@ -37,6 +37,7 @@ export default function App() {
   });
   const [undoInfo, setUndoInfo] = useState(null);
   const [locationFilter, setLocationFilter] = useState('');
+  const [sortMode, setSortMode] = useState(() => localStorage.getItem('sortMode') || 'status');
 
   // Derived: category IDs and labels map
   const categoryIds = categories.map(c => c.id);
@@ -53,6 +54,32 @@ export default function App() {
     if (userName === null) return;
     if (!userName) setShowNamePrompt(true);
   }, [userName]);
+
+  // Browser notification reminder
+  useEffect(() => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      // Ask permission after a short delay
+      const timer = setTimeout(() => Notification.requestPermission(), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // Send notification when there are low items and app is in background
+  useEffect(() => {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    if (lowCount === 0) return;
+    const handleVisChange = () => {
+      if (document.hidden && lowCount > 0) {
+        new Notification('Kućni Inventar', {
+          body: `${lowCount} stavki treba dopuniti`,
+          icon: '/icon-192.png',
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisChange);
+    return () => document.removeEventListener('visibilitychange', handleVisChange);
+  }, [lowCount]);
 
   const handleSaveName = () => {
     if (nameInput.trim()) {
@@ -134,6 +161,28 @@ export default function App() {
 
   const dismissUndo = useCallback(() => setUndoInfo(null), []);
 
+  // Mark all items in a category (or all) as stocked
+  const markAllStocked = async (categoryId) => {
+    const batch = writeBatch(db);
+    const items = inventory.filter(i => i.isLow && (!categoryId || i.category === categoryId));
+    items.forEach(item => {
+      batch.update(doc(db, 'inventory', item.id), {
+        isLow: false,
+        lastUpdated: serverTimestamp(),
+        lastStocked: serverTimestamp(),
+        updatedBy: userName || 'Nepoznato',
+      });
+    });
+    await batch.commit();
+  };
+
+  // Toggle sort mode
+  const toggleSort = () => {
+    const next = sortMode === 'status' ? 'az' : 'status';
+    setSortMode(next);
+    localStorage.setItem('sortMode', next);
+  };
+
   // Filter by search
   const filtered = search
     ? inventory.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
@@ -167,12 +216,16 @@ export default function App() {
       .sort((a, b) => a.name.localeCompare(b.name)),
   })).filter(g => g.items.length > 0);
 
+  // Sort helper
+  const sortItems = (items) => {
+    if (sortMode === 'az') return [...items].sort((a, b) => a.name.localeCompare(b.name));
+    return [...items].sort((a, b) => b.isLow - a.isLow || a.name.localeCompare(b.name));
+  };
+
   // Normal Mode: grouped by category
   const grouped = categoryIds.map(cat => ({
     category: cat,
-    items: filtered
-      .filter(i => i.category === cat)
-      .sort((a, b) => b.isLow - a.isLow || a.name.localeCompare(b.name))
+    items: sortItems(filtered.filter(i => i.category === cat))
   }));
 
   // Share shopping list
@@ -183,7 +236,7 @@ export default function App() {
         if (items.length === 0) return null;
         return `${categoryLabels[cat] || cat}:\n${items.map(i => {
           const locStr = Array.isArray(i.location) ? i.location.join(', ') : (i.location || '');
-          const extra = [i.notes, locStr].filter(Boolean).join(', ');
+          const extra = [i.quantity, i.notes, locStr].filter(Boolean).join(', ');
           return `  - ${i.name}${extra ? ` (${extra})` : ''}`;
         }).join('\n')}`;
       })
@@ -231,8 +284,15 @@ export default function App() {
         )}
       </header>
 
-      {/* Search */}
-      <SearchBar value={search} onChange={setSearch} />
+      {/* Sort & Search */}
+      <div className="sort-search-row">
+        <div className="search-flex">
+          <SearchBar value={search} onChange={setSearch} />
+        </div>
+        <button className="sort-btn" onClick={toggleSort} title={sortMode === 'az' ? 'Sortiraj po statusu' : 'Sortiraj A-Ž'}>
+          {sortMode === 'az' ? 'A-Ž' : '↕'}
+        </button>
+      </div>
 
       {/* Location Filter (shopping mode only) */}
       {shoppingMode && shoppingLocations.length > 0 && (
@@ -259,17 +319,31 @@ export default function App() {
       <main className="list">
         {shoppingMode ? (
           shoppingGrouped.length > 0 ? (
-            shoppingGrouped.map(group => (
+            <>
+            {shoppingGrouped.length > 1 && (
+              <div className="mark-all-bar">
+                <button className="mark-all-btn" onClick={() => markAllStocked()}>
+                  Sve na stanju
+                </button>
+              </div>
+            )}
+            {shoppingGrouped.map(group => (
               <div key={group.category} className="category-section">
                 <div className="category-header shopping-cat-header">
-                  <strong>{categoryLabels[group.category] || group.category}</strong>
-                  <span className="category-count"> ({group.items.length})</span>
+                  <span>
+                    <strong>{categoryLabels[group.category] || group.category}</strong>
+                    <span className="category-count"> ({group.items.length})</span>
+                  </span>
+                  <button className="mark-cat-btn" onClick={() => markAllStocked(group.category)}>
+                    Na stanju
+                  </button>
                 </div>
                 {group.items.map(item => (
                   <ItemRow key={item.id} item={item} userName={userName} onEdit={setEditItem} onUndo={handleUndo} categoryLabels={categoryLabels} />
                 ))}
               </div>
-            ))
+            ))}
+            </>
           ) : (
             <p className="empty">Sve je na stanju!</p>
           )

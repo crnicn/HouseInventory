@@ -7,6 +7,7 @@ export default function EditItemModal({ item, onClose, userName, locations = [],
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
   const [notes, setNotes] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [location, setLocation] = useState([]);
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export default function EditItemModal({ item, onClose, userName, locations = [],
       setName(item.name || '');
       setCategory(item.category || categories[0]?.id || '');
       setNotes(item.notes || '');
+      setQuantity(item.quantity || '');
       const loc = item.location;
       setLocation(Array.isArray(loc) ? loc : (loc ? [loc] : []));
     }
@@ -25,6 +27,7 @@ export default function EditItemModal({ item, onClose, userName, locations = [],
       name: name.trim(),
       category,
       notes: notes.trim(),
+      quantity: quantity.trim(),
       location: location.length > 0 ? location : [],
       lastUpdated: serverTimestamp(),
       updatedBy: userName || 'Nepoznato',
@@ -64,10 +67,18 @@ export default function EditItemModal({ item, onClose, userName, locations = [],
         <label className="modal-label">Lokacija</label>
         <LocationInput value={location} onChange={setLocation} locations={locations} />
 
+        <label className="modal-label">Količina</label>
+        <input
+          className="modal-input"
+          placeholder="npr. 2 komada, 1 litar..."
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+        />
+
         <label className="modal-label">Beleška</label>
         <input
           className="modal-input"
-          placeholder="npr. plava pakovanja, 2 komada..."
+          placeholder="npr. plava pakovanja..."
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
