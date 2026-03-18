@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ItemRow from './ItemRow';
 
 export default function CategorySection({ group, userName, onEdit, onUndo, categoryLabels = {} }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(group.items.length === 0);
   const lowCount = group.items.filter(i => i.isLow).length;
 
   return (
