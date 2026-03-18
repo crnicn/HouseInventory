@@ -55,6 +55,8 @@ export default function App() {
     if (!userName) setShowNamePrompt(true);
   }, [userName]);
 
+  const lowCount = inventory.filter(i => i.isLow).length;
+
   // Browser notification reminder
   useEffect(() => {
     if (!('Notification' in window)) return;
@@ -188,7 +190,6 @@ export default function App() {
     ? inventory.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
     : inventory;
 
-  const lowCount = inventory.filter(i => i.isLow).length;
 
   // Collect unique locations for autocomplete (handles both string and array)
   const knownLocations = [...new Set(
