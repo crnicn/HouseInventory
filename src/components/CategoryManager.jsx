@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function CategoryManager({ categories, onAdd, onRemove, onClose, itemCounts, locations = [], onRemoveLocation }) {
+export default function CategoryManager({ categories, onAdd, onRemove, onReorder, onClose, itemCounts, locations = [], onRemoveLocation }) {
   const [tab, setTab] = useState('categories');
   const [newLabel, setNewLabel] = useState('');
 
@@ -53,7 +53,7 @@ export default function CategoryManager({ categories, onAdd, onRemove, onClose, 
         {tab === 'categories' && (
           <>
             <div className="category-list-manage">
-              {categories.map(cat => (
+              {categories.map((cat, idx) => (
                 <div key={cat.id} className="category-manage-row">
                   <span className="category-manage-label">
                     {cat.label}
@@ -61,9 +61,23 @@ export default function CategoryManager({ categories, onAdd, onRemove, onClose, 
                       <span className="category-manage-count"> ({itemCounts[cat.id]})</span>
                     )}
                   </span>
-                  <button className="category-remove-btn" onClick={() => handleRemove(cat)} title="Obriši">
-                    ✕
-                  </button>
+                  <div className="category-manage-actions">
+                    <button
+                      className="category-move-btn"
+                      onClick={() => onReorder(idx, idx - 1)}
+                      disabled={idx === 0}
+                      title="Pomeri gore"
+                    >▲</button>
+                    <button
+                      className="category-move-btn"
+                      onClick={() => onReorder(idx, idx + 1)}
+                      disabled={idx === categories.length - 1}
+                      title="Pomeri dole"
+                    >▼</button>
+                    <button className="category-remove-btn" onClick={() => handleRemove(cat)} title="Obriši">
+                      ✕
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

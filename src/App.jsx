@@ -124,6 +124,14 @@ export default function App() {
     await saveCategories(newList);
   };
 
+  const handleReorderCategory = async (fromIdx, toIdx) => {
+    if (toIdx < 0 || toIdx >= categories.length) return;
+    const newList = [...categories];
+    const [moved] = newList.splice(fromIdx, 1);
+    newList.splice(toIdx, 0, moved);
+    await saveCategories(newList);
+  };
+
   // Remove a location from all items that have it
   const handleRemoveLocation = async (loc) => {
     const itemsWithLoc = inventory.filter(i => {
@@ -371,6 +379,7 @@ export default function App() {
           categories={categories}
           onAdd={handleAddCategory}
           onRemove={handleRemoveCategory}
+          onReorder={handleReorderCategory}
           onClose={() => setShowCategoryManager(false)}
           itemCounts={itemCounts}
           locations={knownLocations}
